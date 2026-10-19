@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Barbería Joseph</title>
+<link rel="icon" id="favicon" href="data:,">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700;800&display=swap">
 <style>
 
@@ -137,6 +138,12 @@ footer{text-align:center;padding-block:30px 100px;color:var(--muted);font-size:1
 .fab .adm{background:var(--red)}
 body.tvmode header,body.tvmode .fab .wa,body.tvmode .fab .adm,body.tvmode .pending{display:none}
 body.tvmode .fab{opacity:.25}
+body.tvmode{overflow:hidden;height:100vh}
+body.tvmode .hero,body.tvmode main>section,body.tvmode footer,body.tvmode .setup{display:none}
+body.tvmode .hero.tv-on,body.tvmode main>section.tv-on{display:block;transform-origin:top center;animation:tvIn .7s ease}
+@keyframes tvIn{from{opacity:0;transform:translateY(24px)}}
+#tvBar{position:fixed;left:0;bottom:0;height:8px;width:0;background:var(--pole);background-size:40px 40px;z-index:70;display:none}
+body.tvmode #tvBar{display:block}
 
 .pending{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:61;background:#fff;color:var(--ink);border-radius:40px;padding:8px 8px 8px 18px;display:flex;align-items:center;gap:12px;font-weight:700;font-size:14px;box-shadow:0 0 0 3px var(--red),0 10px 30px rgba(0,0,0,.45);max-width:calc(100% - 100px)}
 
@@ -198,6 +205,10 @@ img{max-width:100%}
 .pinbox input.txt{letter-spacing:0;font-size:16px;text-align:left;margin:4px 0 0;padding:11px 12px;border-width:2px}
 .setup{background:#ffd23f;color:var(--navy);font-weight:700;font-size:14px;text-align:center;padding-block:10px}
 .who{font-size:12px;opacity:.8}
+.logo{overflow:hidden}
+.logo img{width:100%;height:100%;object-fit:cover;display:block}
+.hero-logo{width:150px;height:150px;font-size:90px;margin:0 auto 22px;border-width:5px;box-shadow:0 0 0 5px var(--blue),0 12px 30px rgba(0,0,0,.4)}
+@media(max-width:600px){.hero-logo{width:110px;height:110px}}
 </style>
 </head>
 <body>
@@ -229,7 +240,7 @@ const FIREBASE_CONFIG = {
 <header><div class="wrap hbar"><div class="logo">J</div><div class="brand" id="hBrand"></div>
 <nav><a href="#ofertas">Ofertas</a><a href="#precios">Precios</a><a href="#combos">Combos</a><a href="#cortes">Cortes</a><a href="#contacto">Contacto</a></nav></div><div class="pole-band"></div></header>
 
-<div class="hero"><div class="wrap hero-inner"><div class="pole"></div><div><h1 id="heroName"></h1><div class="sub" id="heroSlogan"></div><div class="est">✂ BARBER SHOP ✂</div><br><a class="cta" id="heroCta" href="#cortes"></a></div><div class="pole"></div></div></div>
+<div class="hero" id="inicio"><div class="wrap hero-inner"><div class="pole"></div><div><div class="logo hero-logo" id="heroLogo" hidden></div><h1 id="heroName"></h1><div class="sub" id="heroSlogan"></div><div class="est">✂ BARBER SHOP ✂</div><br><a class="cta" id="heroCta" href="#cortes"></a></div><div class="pole"></div></div></div>
 
 <main class="wrap">
 <section id="ofertas"><div class="sec-title"><h2>Ofertas</h2><span class="tag">POR TIEMPO LIMITADO</span><div class="bar"></div></div><div id="slider"></div></section>
@@ -257,6 +268,7 @@ const FIREBASE_CONFIG = {
 <span class="status" id="aStatus">Todo guardado</span><button class="btn red sm" id="aPub">Guardar cambios</button><button class="btn ghost sm" id="aClose">Cerrar</button></div>
 <div class="atabs" id="atabs"></div><div class="abody" id="abody"></div></div></div>
 <div class="toast" id="toast"></div>
+<div id="tvBar"></div>
 
 <script>
 (function(){
@@ -318,6 +330,7 @@ function svgCorte(st){
     '<path d="M91,127 Q100,132 109,127" stroke="#7a3a24" stroke-width="2.6" fill="none" stroke-linecap="round"/>'+
     '<rect y="190" width="200" height="10" fill="url(#p'+id+')"/></svg>';
 }
+function logoUrl(){ var u=D.config.logoId&&FOTOS[D.config.logoId]; return (u && /^data:image\//.test(u)) ? u : ''; }
 function fotoCorte(c){ var u=c.fotoId&&FOTOS[c.fotoId]; return (u && /^data:image\//.test(u)) ? '<img src="'+u+'" alt="'+esc(c.nombre)+'" loading="lazy">' : svgCorte(c.estilo||'lowfade'); }
 
 /* ============ VISTA PÚBLICA ============ */
@@ -325,6 +338,10 @@ var slideI=0, slideT=null;
 function render(){
   var C=D.config;
   document.title=C.nombre||'Barbería';
+  var lg=logoUrl();
+  document.querySelectorAll('.logo').forEach(function(el){ if(el.id!=='heroLogo') el.innerHTML = lg ? '<img src="'+lg+'" alt="">' : 'J'; });
+  $('heroLogo').hidden=!lg; $('heroLogo').innerHTML = lg ? '<img src="'+lg+'" alt="Logo de '+esc(C.nombre)+'">' : '';
+  $('favicon').href = lg || 'data:,';
   var parts=String(C.nombre||'').trim().split(' '), last=parts.length>1?parts.pop():'';
   $('hBrand').innerHTML = esc(parts.join(' '))+(last?' <span>'+esc(last)+'</span>':'');
   $('heroName').textContent = String(C.nombre||'').toUpperCase();
@@ -364,6 +381,7 @@ function render(){
   function box(ic,tt,v){ return v ? '<div class="cbox"><div class="ic">'+ic+'</div><div><b>'+tt+'</b><span>'+esc(v)+'</span></div></div>' : ''; }
   $('contact').innerHTML = (box('🕘','HORARIO',C.horario)+box('📍','DIRECCIÓN',C.direccion)+box('📞','TELÉFONO',C.telefono)) || '<div class="empty">Pronto publicaremos horario y dirección.</div>';
   $('foot').textContent = '💈 '+C.nombre+' · Precios en Lempiras';
+  if(document.body.classList.contains('tvmode') && typeof tvAjustar==='function'){ var cur=document.querySelector('.tv-on'); if(cur && !cur.hidden) tvAjustar(cur); else if(cur) tvMostrar(tvI); }
 }
 function goSlide(n){
   var s=document.querySelectorAll('.slide'), d=document.querySelectorAll('.dots button'); if(!s.length) return;
@@ -384,21 +402,41 @@ $('lb').addEventListener('click',function(e){ if(e.target===this) closeLb(); });
 $('lbX').onclick=closeLb; $('lbP').onclick=function(){lbMove(-1);}; $('lbN').onclick=function(){lbMove(1);};
 document.addEventListener('keydown',function(e){ if($('lb').hidden) return; if(e.key==='Escape')closeLb(); if(e.key==='ArrowRight')lbMove(1); if(e.key==='ArrowLeft')lbMove(-1); });
 
-/* Modo TV: la página baja sola y vuelve arriba. Los cambios llegan solos, sin recargar. */
-var tvT=null;
+/* Modo TV: muestra una sección a la vez en pantalla completa y cambia sola */
+var tvT=null, tvI=0;
+var TV_TIEMPO={inicio:8,ofertas:12,precios:15,combos:12,cortes:16,contacto:8};
+function tvLista(){ return ['inicio','ofertas','precios','combos','cortes','contacto'].map($).filter(function(el){ return el && !el.hidden; }); }
+function tvLimpiar(){ tvLista().concat([$('ofertas'),$('combos')]).forEach(function(el){ if(!el) return; el.classList.remove('tv-on'); el.style.transform=''; el.style.marginTop=''; }); }
+function tvAjustar(el){
+  // achica la sección si no cabe en la pantalla y la centra si sobra espacio
+  el.style.transform=''; el.style.marginTop='';
+  var alto=el.scrollHeight, disp=window.innerHeight-16;
+  if(alto>disp){ el.style.transform='scale('+Math.max(.4,disp/alto).toFixed(3)+')'; }
+  else { el.style.marginTop=Math.floor((disp-alto)/2)+'px'; }
+}
+function tvMostrar(n){
+  clearTimeout(tvT);
+  if(!document.body.classList.contains('tvmode')) return;
+  var l=tvLista(); if(!l.length) return;
+  tvI=((n%l.length)+l.length)%l.length;
+  tvLimpiar(); var el=l[tvI]; el.classList.add('tv-on');
+  window.scrollTo(0,0);
+  tvAjustar(el); setTimeout(function(){ tvAjustar(el); },900);
+  var seg=TV_TIEMPO[el.id]||10, bar=$('tvBar');
+  bar.style.transition='none'; bar.style.width='0';
+  setTimeout(function(){ bar.style.transition='width '+seg+'s linear'; bar.style.width='100%'; },50);
+  tvT=setTimeout(function(){ tvMostrar(tvI+1); },seg*1000);
+}
 function setTV(on){
   document.body.classList.toggle('tvmode',on);
   try{ on ? localStorage.setItem('bj_tv','1') : localStorage.removeItem('bj_tv'); }catch(e){}
-  clearInterval(tvT);
+  clearTimeout(tvT);
   if(on){
-    var pausa=0;
-    tvT=setInterval(function(){ if(pausa>0){pausa--;return;}
-      var fin=window.innerHeight+window.scrollY >= document.documentElement.scrollHeight-4;
-      if(fin){ pausa=140; setTimeout(function(){window.scrollTo({top:0,behavior:'smooth'});},3000); } else window.scrollBy(0,1);
-    },30);
+    tvMostrar(0);
     try{ var wl=navigator.wakeLock&&navigator.wakeLock.request('screen'); if(wl&&wl.catch) wl.catch(function(){}); }catch(e){}
-  }
+  } else { tvLimpiar(); }
 }
+window.addEventListener('resize',function(){ var el=document.querySelector('.tv-on'); if(el && document.body.classList.contains('tvmode')) tvAjustar(el); });
 $('btnTv').onclick=function(){
   var on=!document.body.classList.contains('tvmode'); setTV(on);
   if(on){ toast('📺 Modo pantalla activado'); try{ var p=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(function(){}); }catch(e){} }
@@ -484,7 +522,12 @@ function drawAdmin(){
   var b=$('abody');
   if(tab==='config'){
     var f=[['nombre','Nombre de la barbería','text'],['slogan','Frase / slogan','text'],['whatsapp','WhatsApp (ej. 99887766)','tel'],['telefono','Teléfono a mostrar','tel'],['direccion','Dirección','area'],['horario','Horario','area']];
-    b.innerHTML='<div class="item"><div class="ih"><b>Datos del negocio</b></div><div class="fields">'+f.map(function(x){return fieldHTML('config',-1,x,D.config[x[0]]);}).join('')+'</div>'+
+    var lg=logoUrl();
+    b.innerHTML='<div class="item"><div class="ih"><b>Logo</b></div><div class="imgedit"><div class="th" style="border-radius:50%;background:#fff;display:grid;place-items:center;font-family:var(--display);font-size:48px;color:var(--navy)">'+(lg?'<img src="'+lg+'" alt="">':'J')+'</div>'+
+      '<div style="display:flex;flex-direction:column;gap:8px"><label class="btn sm">🖼 '+(lg?'Cambiar logo':'Subir logo')+'<input type="file" accept="image/*" hidden data-logo="1"></label>'+
+      (lg?'<button class="btn ghost sm" data-quitarlogo="1">Quitar logo</button>':'')+'</div></div>'+
+      '<p class="note">Se muestra en la cabecera y grande arriba del nombre. Queda mejor un logo cuadrado o redondo.</p></div>'+
+      '<div class="item"><div class="ih"><b>Datos del negocio</b></div><div class="fields">'+f.map(function(x){return fieldHTML('config',-1,x,D.config[x[0]]);}).join('')+'</div>'+
       '<p class="note">Con el WhatsApp aparece el botón verde para reservar y el botón "Quiero este corte" en cada estilo.</p></div>'+
       (user?'<div class="item"><div class="ih"><b>Sesión</b></div><p class="note who">Entraste como '+esc(user.email)+'</p><button class="btn ghost sm" data-logout="1" style="margin-top:8px">Cerrar sesión en este aparato</button></div>':'');
     return;
@@ -517,12 +560,14 @@ function setF(el,final){
 $('abody').addEventListener('input',function(e){ if(e.target.dataset.s && e.target.type!=='checkbox' && e.target.tagName!=='SELECT') setF(e.target,false); });
 $('abody').addEventListener('change',function(e){ var t=e.target;
   if(t.dataset.foto!=null){ subirFoto(t,+t.dataset.foto); return; }
+  if(t.dataset.logo){ subirFoto(t,'logo'); return; }
   if(t.dataset.s) setF(t,true); });
 $('abody').addEventListener('click',function(e){ var t=e.target.closest('button'); if(!t) return;
   if(t.dataset.logout){ auth.signOut().then(function(){ $('adminModal').hidden=true; toast('Sesión cerrada'); updStatus(); }); }
   else if(t.dataset.add){ D[tab].unshift(SCHEMA[tab].nuevo()); confirmDel=-1; markDirty(); render(); drawAdmin(); }
   else if(t.dataset.mov!=null){ var i=+t.dataset.mov, j=i+(+t.dataset.d), l=D[tab]; if(j<0||j>=l.length) return; var x=l[i]; l[i]=l[j]; l[j]=x; confirmDel=-1; markDirty(); render(); drawAdmin(); }
   else if(t.dataset.del!=null){ var d=+t.dataset.del; if(confirmDel!==d){ confirmDel=d; drawAdmin(); return; } D[tab].splice(d,1); confirmDel=-1; markDirty(); render(); drawAdmin(); toast('Eliminado. Recuerda guardar.'); }
+  else if(t.dataset.quitarlogo){ D.config.logoId=''; markDirty(); render(); drawAdmin(); }
   else if(t.dataset.quitar!=null){ D.cortes[+t.dataset.quitar].fotoId=''; markDirty(); render(); drawAdmin(); }
 });
 
@@ -531,15 +576,25 @@ function subirFoto(inp,i){
   var f=inp.files[0]; if(!f) return; toast('Procesando foto…');
   var r=new FileReader();
   r.onload=function(e){ var im=new Image(); im.onload=function(){
-      var lado=Math.min(im.width,im.height), sx=(im.width-lado)/2, sy=(im.height-lado)/2;
-      var out=Math.min(640,lado), cv=document.createElement('canvas'); cv.width=cv.height=out;
-      cv.getContext('2d').drawImage(im,sx,sy,lado,lado,0,0,out,out);
-      var q=.8, url=cv.toDataURL('image/jpeg',q);
+      var esLogo=(i==='logo'), cv=document.createElement('canvas'), ctx=cv.getContext('2d'), url, q=.8;
+      if(esLogo){
+        // el logo se ajusta completo dentro de un cuadrado, sin recortarlo
+        var out=400, k=Math.min(out/im.width,out/im.height), w=im.width*k, h=im.height*k;
+        cv.width=cv.height=out; ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,out,out);
+        ctx.drawImage(im,(out-w)/2,(out-h)/2,w,h);
+        url=cv.toDataURL('image/png'); if(url.length>700000) url=cv.toDataURL('image/jpeg',.85);
+      } else {
+        var lado=Math.min(im.width,im.height), sx=(im.width-lado)/2, sy=(im.height-lado)/2;
+        var out2=Math.min(640,lado); cv.width=cv.height=out2;
+        ctx.drawImage(im,sx,sy,lado,lado,0,0,out2,out2);
+        url=cv.toDataURL('image/jpeg',q);
+      }
       while(url.length>700000 && q>.35){ q-=.1; url=cv.toDataURL('image/jpeg',q); }
+      function asignar(id){ if(esLogo) D.config.logoId=id; else D.cortes[i].fotoId=id; }
       var id='f'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-      if(!configurado){ FOTOS[id]=url; D.cortes[i].fotoId=id; markDirty(); render(); drawAdmin(); toast('Foto de prueba (no se guarda sin Firebase)'); return; }
+      if(!configurado){ FOTOS[id]=url; asignar(id); markDirty(); render(); drawAdmin(); toast('Foto de prueba (no se guarda sin Firebase)'); return; }
       db.collection('fotos').doc(id).set({data:url}).then(function(){
-        FOTOS[id]=url; D.cortes[i].fotoId=id; markDirty(); render(); drawAdmin(); toast('✓ Foto subida. Toca "Guardar cambios"');
+        FOTOS[id]=url; asignar(id); markDirty(); render(); drawAdmin(); toast((esLogo?'✓ Logo subido':'✓ Foto subida')+'. Toca "Guardar cambios"');
       }).catch(function(err){ toast(err&&err.code==='permission-denied' ? 'Sin permiso para subir. Revisa las reglas de Firebase.' : 'No se pudo subir la foto. Revisa tu internet.'); });
     };
     im.onerror=function(){ toast('No se pudo leer esa imagen. Prueba con JPG o PNG.'); };
@@ -556,7 +611,7 @@ function guardar(){
   db.collection('barberia').doc('datos').set(datos).then(function(){
     dirty=false; remotoPendiente=null; cachear(); toast('✓ Guardado. El TV ya lo muestra.');
     // borrar fotos que ya no usa ningún corte
-    var usadas={}; D.cortes.forEach(function(c){ if(c.fotoId) usadas[c.fotoId]=1; });
+    var usadas={}; if(D.config.logoId) usadas[D.config.logoId]=1; D.cortes.forEach(function(c){ if(c.fotoId) usadas[c.fotoId]=1; });
     Object.keys(FOTOS).forEach(function(id){ if(!usadas[id]) db.collection('fotos').doc(id).delete().catch(function(){}); });
   }).catch(function(err){
     toast(err&&err.code==='permission-denied' ? 'Sin permiso para guardar. Revisa las reglas de Firebase.' : 'No se pudo guardar. Revisa tu internet e intenta otra vez.');
