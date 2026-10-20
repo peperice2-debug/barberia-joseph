@@ -118,7 +118,26 @@ section{padding-block:40px}
 .cut .info{padding:12px 14px 16px;border-top:4px solid var(--red)}
 .cut .info h3{font-size:24px;line-height:1.05}
 .cut .info p{font-size:13px;color:var(--muted);margin-top:3px}
+.prods{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:18px}
+@media(max-width:480px){.prods{grid-template-columns:1fr 1fr;gap:12px}}
+.prod{background:#fff;color:var(--navy);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 12px 28px rgba(0,0,0,.3)}
+.prod .ph{aspect-ratio:1/1;max-width:100%;overflow:hidden;background:#eef2fb;position:relative}
+.prod .ph img,.prod .ph svg{width:100%;height:100%;object-fit:cover;display:block}
+.prod .precio{position:absolute;right:10px;bottom:10px;background:var(--red);color:#fff;font-family:var(--display);font-size:28px;line-height:1;padding:6px 12px 4px;border-radius:10px;box-shadow:0 6px 14px rgba(0,0,0,.3);font-variant-numeric:tabular-nums}
+.prod .info{padding:12px 14px 16px;border-top:4px solid var(--blue)}
+.prod .info h3{font-size:24px;line-height:1.05}
+.prod .info p{font-size:13px;color:var(--soft);margin-top:3px}
 .hint{color:var(--muted);font-size:14px;margin:-10px 0 20px}
+.posters{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px;align-items:start}
+.poster{padding:0;border:0;background:#fff;border-radius:16px;overflow:hidden;cursor:zoom-in;box-shadow:0 0 0 4px #fff,0 0 0 8px var(--red),0 16px 34px rgba(0,0,0,.4);transition:transform .25s}
+.poster:hover{transform:translateY(-4px)}
+.poster img{width:100%;height:auto;display:block}
+.poster .cap{display:block;background:var(--navy);color:#fff;font-family:var(--display);font-size:24px;letter-spacing:1px;padding:8px 12px 6px;text-align:center}
+body.tvmode #cortes .hint{display:none}
+body.tvmode .posters{display:flex;justify-content:center;gap:28px}
+body.tvmode .poster{flex:1 1 0;max-width:46vw;cursor:default}
+.lb .box.big{max-width:min(980px,100%);background:#fff}
+.lb .box.big img{width:100%;height:auto;display:block}
 
 .contact{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:16px}
 .cbox{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;gap:14px}
@@ -137,7 +156,9 @@ footer{text-align:center;padding-block:30px 100px;color:var(--muted);font-size:1
 .fab .tv{background:var(--blue)}
 .fab .adm{background:var(--red)}
 body.tvmode header,body.tvmode .fab .wa,body.tvmode .fab .adm,body.tvmode .pending{display:none}
-body.tvmode .fab{opacity:.25}
+body.tvmode .fab{opacity:.35;z-index:72}
+body.tvmode.ticker-on .fab{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+body.tvmode.ticker-on #tvBar{bottom:68px}
 body.tvmode{overflow:hidden;height:100vh}
 body.tvmode .hero,body.tvmode main>section,body.tvmode footer,body.tvmode .setup{display:none}
 body.tvmode .hero.tv-on,body.tvmode main>section.tv-on{display:block;transform-origin:top center;animation:tvIn .7s ease}
@@ -204,6 +225,7 @@ body.tvmode.ticker-on #tvBar{bottom:68px}
 .imgedit{display:flex;gap:12px;align-items:center;grid-column:1/-1}
 .imgedit .th{width:90px;height:90px;border-radius:12px;overflow:hidden;background:#0a1d47;flex:none}
 .imgedit .th img,.imgedit .th svg{width:100%;height:100%;object-fit:cover;display:block}
+.imgedit .th.full img{object-fit:contain;background:#fff}
 .addbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
 .addbar p{flex:1;min-width:200px;font-size:13px;color:var(--soft)}
 .note{font-size:13px;color:var(--soft);margin-top:4px}
@@ -250,7 +272,7 @@ const FIREBASE_CONFIG = {
 <div class="setup" id="setup" hidden>Falta conectar Firebase: se muestran datos de ejemplo y los cambios no se guardan.</div>
 
 <header><div class="wrap hbar"><div class="logo">J</div><div class="brand" id="hBrand"></div>
-<nav><a href="#ofertas">Ofertas</a><a href="#precios">Precios</a><a href="#combos">Combos</a><a href="#cortes">Cortes</a><a href="#contacto">Contacto</a></nav></div><div class="pole-band"></div></header>
+<nav><a href="#ofertas">Ofertas</a><a href="#precios">Precios</a><a href="#combos">Combos</a><a href="#productos" id="navProd">Productos</a><a href="#cortes" id="navCortes">Cortes</a><a href="#contacto">Contacto</a></nav></div><div class="pole-band"></div></header>
 
 <div class="hero" id="inicio"><div class="wrap hero-inner"><div class="pole"></div><div><div class="logo hero-logo" id="heroLogo" hidden></div><h1 id="heroName"></h1><div class="sub" id="heroSlogan"></div><div class="est">✂ BARBER SHOP ✂</div><br><a class="cta" id="heroCta" href="#cortes"></a></div><div class="pole"></div></div></div>
 
@@ -258,7 +280,8 @@ const FIREBASE_CONFIG = {
 <section id="ofertas"><div class="sec-title"><h2>Ofertas</h2><span class="tag">POR TIEMPO LIMITADO</span><div class="bar"></div></div><div id="slider"></div></section>
 <section id="precios"><div class="sec-title"><h2>Lista de precios</h2><div class="bar"></div></div><div class="menu" id="menu"></div></section>
 <section id="combos"><div class="sec-title"><h2>Combos</h2><span class="tag r">AHORRA MÁS</span><div class="bar"></div></div><div class="combos" id="combosList"></div></section>
-<section id="cortes"><div class="sec-title"><h2>Estilos de corte</h2><div class="bar"></div></div><p class="hint">Toca un estilo para verlo en grande y muéstraselo a tu barbero.</p><div class="gal" id="gal"></div></section>
+<section id="productos"><div class="sec-title"><h2>Productos</h2><span class="tag r">A LA VENTA</span><div class="bar"></div></div><div class="prods" id="prodList"></div></section>
+<section id="cortes"><div class="sec-title"><h2>Estilos de corte</h2><div class="bar"></div></div><p class="hint">Toca un póster para verlo en grande y muéstrale a tu barbero el estilo que quieres.</p><div class="posters" id="gal"></div></section>
 <section id="contacto"><div class="sec-title"><h2>Visítanos</h2><div class="bar"></div></div><div class="contact" id="contact"></div></section>
 </main>
 <footer><div class="pole-band" style="margin-bottom:22px"></div><div class="wrap" id="foot"></div></footer>
@@ -287,7 +310,7 @@ const FIREBASE_CONFIG = {
 <script>
 (function(){
 /* ============ DATOS DE EJEMPLO (se usan hasta que guardes los tuyos) ============ */
-var EJEMPLO = {"config": {"nombre": "Barbería Joseph", "slogan": "Estilo, precisión y tradición en cada corte", "telefono": "", "whatsapp": "", "direccion": "", "horario": "Lunes a Sábado: 9:00 AM – 7:00 PM\nDomingo: 9:00 AM – 2:00 PM", "tvSeg": "10", "tvReloj": true, "tickerOn": false, "tickerVel": "normal", "tickerTexto": "Todo lo puedo en Cristo que me fortalece. — Filipenses 4:13\nJehová es mi pastor; nada me faltará. — Salmos 23:1\nMira que te mando que te esfuerces y seas valiente: no temas ni desmayes, porque Jehová tu Dios será contigo. — Josué 1:9"}, "servicios": [{"nombre": "Corte clásico", "desc": "Corte a tijera o máquina, terminado con navaja", "precio": 150, "duracion": "30 min", "destacado": false}, {"nombre": "Corte + Fade", "desc": "Degradado bajo, medio o alto, bien difuminado", "precio": 180, "duracion": "40 min", "destacado": true}, {"nombre": "Corte de niño", "desc": "Para los más pequeños (hasta 12 años)", "precio": 120, "duracion": "25 min", "destacado": false}, {"nombre": "Arreglo de barba", "desc": "Perfilado con navaja, toalla caliente y aceite", "precio": 100, "duracion": "20 min", "destacado": true}, {"nombre": "Perfilado de cejas", "desc": "Limpieza y definición con navaja", "precio": 50, "duracion": "10 min", "destacado": false}, {"nombre": "Diseño / rayitas", "desc": "Líneas o diseño libre a tu gusto", "precio": 50, "duracion": "10 min", "destacado": false}, {"nombre": "Lavado + peinado", "desc": "Shampoo, masaje y estilizado con cera o gel", "precio": 80, "duracion": "15 min", "destacado": false}, {"nombre": "Mascarilla negra", "desc": "Limpieza facial de puntos negros", "precio": 120, "duracion": "20 min", "destacado": false}], "combos": [{"nombre": "Combo Caballero", "incluye": "Corte + Fade\nArreglo de barba\nPerfilado de cejas", "precio": 260, "precioAntes": 330}, {"nombre": "Papá e Hijo", "incluye": "Corte de adulto\nCorte de niño\nPeinado para los dos", "precio": 240, "precioAntes": 270}, {"nombre": "Full VIP", "incluye": "Corte + Fade\nArreglo de barba\nMascarilla negra\nLavado + peinado", "precio": 420, "precioAntes": 480}], "ofertas": [{"titulo": "Martes de estudiantes", "desc": "Presenta tu carné y llévate tu corte a precio especial.", "precio": 120, "precioAntes": 150, "vence": "2026-12-31", "activo": true}, {"titulo": "Combo del mes", "desc": "Corte + barba + cejas. ¡Sal como nuevo!", "precio": 250, "precioAntes": 330, "vence": "2026-11-30", "activo": true}], "cortes": [{"nombre": "Low Fade", "desc": "Degradado bajo, limpio y discreto", "estilo": "lowfade", "fotoId": ""}, {"nombre": "Mid Fade Texturizado", "desc": "Degradado medio con textura arriba", "estilo": "midfade", "fotoId": ""}, {"nombre": "Pompadour", "desc": "Volumen hacia atrás, estilo clásico", "estilo": "pompadour", "fotoId": ""}, {"nombre": "Crop Francés", "desc": "Flequillo corto texturizado", "estilo": "crop", "fotoId": ""}, {"nombre": "Burst Fade Mohicano", "desc": "Degradado en curva alrededor de la oreja", "estilo": "mohawk", "fotoId": ""}, {"nombre": "Undercut Slick Back", "desc": "Lados cortos, arriba peinado hacia atrás", "estilo": "undercut", "fotoId": ""}, {"nombre": "Side Part Clásico", "desc": "Raya al lado, elegante y formal", "estilo": "sidepart", "fotoId": ""}, {"nombre": "Buzz Cut", "desc": "Rapado parejo, cero mantenimiento", "estilo": "buzz", "fotoId": ""}, {"nombre": "Afro Taper", "desc": "Volumen arriba con taper en los lados", "estilo": "afro", "fotoId": ""}, {"nombre": "Mullet Moderno", "desc": "Corto adelante, largo atrás con fade", "estilo": "mullet", "fotoId": ""}, {"nombre": "Fade + Barba", "desc": "Degradado unido a barba perfilada", "estilo": "barba", "fotoId": ""}]};
+var EJEMPLO = {"config": {"nombre": "Barbería Joseph", "slogan": "Estilo, precisión y tradición en cada corte", "telefono": "", "whatsapp": "", "direccion": "", "horario": "Lunes a Sábado: 9:00 AM – 7:00 PM\nDomingo: 9:00 AM – 2:00 PM", "tvSeg": "10", "productosOn": true, "tvReloj": true, "tickerOn": false, "tickerVel": "normal", "tickerTexto": "Todo lo puedo en Cristo que me fortalece. — Filipenses 4:13\nJehová es mi pastor; nada me faltará. — Salmos 23:1\nMira que te mando que te esfuerces y seas valiente: no temas ni desmayes, porque Jehová tu Dios será contigo. — Josué 1:9"}, "servicios": [{"nombre": "Corte clásico", "desc": "Corte a tijera o máquina, terminado con navaja", "precio": 150, "duracion": "30 min", "destacado": false}, {"nombre": "Corte + Fade", "desc": "Degradado bajo, medio o alto, bien difuminado", "precio": 180, "duracion": "40 min", "destacado": true}, {"nombre": "Corte de niño", "desc": "Para los más pequeños (hasta 12 años)", "precio": 120, "duracion": "25 min", "destacado": false}, {"nombre": "Arreglo de barba", "desc": "Perfilado con navaja, toalla caliente y aceite", "precio": 100, "duracion": "20 min", "destacado": true}, {"nombre": "Perfilado de cejas", "desc": "Limpieza y definición con navaja", "precio": 50, "duracion": "10 min", "destacado": false}, {"nombre": "Diseño / rayitas", "desc": "Líneas o diseño libre a tu gusto", "precio": 50, "duracion": "10 min", "destacado": false}, {"nombre": "Lavado + peinado", "desc": "Shampoo, masaje y estilizado con cera o gel", "precio": 80, "duracion": "15 min", "destacado": false}, {"nombre": "Mascarilla negra", "desc": "Limpieza facial de puntos negros", "precio": 120, "duracion": "20 min", "destacado": false}], "combos": [{"nombre": "Combo Caballero", "incluye": "Corte + Fade\nArreglo de barba\nPerfilado de cejas", "precio": 260, "precioAntes": 330}, {"nombre": "Papá e Hijo", "incluye": "Corte de adulto\nCorte de niño\nPeinado para los dos", "precio": 240, "precioAntes": 270}, {"nombre": "Full VIP", "incluye": "Corte + Fade\nArreglo de barba\nMascarilla negra\nLavado + peinado", "precio": 420, "precioAntes": 480}], "ofertas": [{"titulo": "Martes de estudiantes", "desc": "Presenta tu carné y llévate tu corte a precio especial.", "precio": 120, "precioAntes": 150, "vence": "2026-12-31", "activo": true}, {"titulo": "Combo del mes", "desc": "Corte + barba + cejas. ¡Sal como nuevo!", "precio": 250, "precioAntes": 330, "vence": "2026-11-30", "activo": true}], "posters": [], "productos": [{"nombre": "Cera mate", "desc": "Fijación fuerte, acabado natural sin brillo", "precio": 180, "fotoId": "", "activo": true}, {"nombre": "Pomada con brillo", "desc": "Para peinados clásicos y pompadour", "precio": 180, "fotoId": "", "activo": true}, {"nombre": "Aceite para barba", "desc": "Suaviza, hidrata y da buen olor", "precio": 220, "fotoId": "", "activo": true}, {"nombre": "Shampoo para barba", "desc": "Limpieza diaria sin resecar", "precio": 200, "fotoId": "", "activo": true}], "cortes": [{"nombre": "Low Fade", "desc": "Degradado bajo, limpio y discreto", "estilo": "lowfade", "fotoId": ""}, {"nombre": "Mid Fade Texturizado", "desc": "Degradado medio con textura arriba", "estilo": "midfade", "fotoId": ""}, {"nombre": "Pompadour", "desc": "Volumen hacia atrás, estilo clásico", "estilo": "pompadour", "fotoId": ""}, {"nombre": "Crop Francés", "desc": "Flequillo corto texturizado", "estilo": "crop", "fotoId": ""}, {"nombre": "Burst Fade Mohicano", "desc": "Degradado en curva alrededor de la oreja", "estilo": "mohawk", "fotoId": ""}, {"nombre": "Undercut Slick Back", "desc": "Lados cortos, arriba peinado hacia atrás", "estilo": "undercut", "fotoId": ""}, {"nombre": "Side Part Clásico", "desc": "Raya al lado, elegante y formal", "estilo": "sidepart", "fotoId": ""}, {"nombre": "Buzz Cut", "desc": "Rapado parejo, cero mantenimiento", "estilo": "buzz", "fotoId": ""}, {"nombre": "Afro Taper", "desc": "Volumen arriba con taper en los lados", "estilo": "afro", "fotoId": ""}, {"nombre": "Mullet Moderno", "desc": "Corto adelante, largo atrás con fade", "estilo": "mullet", "fotoId": ""}, {"nombre": "Fade + Barba", "desc": "Degradado unido a barba perfilada", "estilo": "barba", "fotoId": ""}]};
 var D = JSON.parse(JSON.stringify(EJEMPLO));
 var FOTOS = {};            // id -> imagen (data URL) guardadas en Firebase
 var dirty = false, remotoPendiente = null, user = null;
@@ -303,7 +326,7 @@ function fechaBonita(s){ if(!s) return ''; var p=s.split('-'); var ms=['ene','fe
 function waLink(msg){ var n=String(D.config.whatsapp||'').replace(/\D/g,''); if(!n) return ''; var num = n.length===8 ? '504'+n : n; return 'https://wa.me/'+num+'?text='+encodeURIComponent(msg||('Hola, quiero reservar un corte en '+D.config.nombre)); }
 function normalizar(d){
   var b=JSON.parse(JSON.stringify(EJEMPLO));
-  return { config:Object.assign(b.config,(d&&d.config)||{}), servicios:(d&&d.servicios)||[], combos:(d&&d.combos)||[], ofertas:(d&&d.ofertas)||[], cortes:(d&&d.cortes)||[] };
+  return { config:Object.assign(b.config,(d&&d.config)||{}), servicios:(d&&d.servicios)||[], combos:(d&&d.combos)||[], ofertas:(d&&d.ofertas)||[], cortes:(d&&d.cortes)||[], productos:(d&&d.productos)||b.productos, posters:(d&&d.posters)||[] };
 }
 /* Copia local para que el TV muestre algo aunque se caiga el internet */
 try{ var c=localStorage.getItem('bj_cache'); if(c){ D=normalizar(JSON.parse(c)); } }catch(e){}
@@ -345,6 +368,16 @@ function svgCorte(st){
     '<rect y="190" width="200" height="10" fill="url(#p'+id+')"/></svg>';
 }
 function logoUrl(){ var u=D.config.logoId&&FOTOS[D.config.logoId]; return (u && /^data:image\//.test(u)) ? u : ''; }
+function svgProducto(n){
+  var c=['#1d4ed8','#d62839','#081a3f','#3b6cf0'][n%4];
+  return '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Producto"><rect width="200" height="200" fill="#eef2fb"/>'+
+    '<circle cx="100" cy="104" r="74" fill="#dfe6f6"/><rect x="62" y="70" width="76" height="92" rx="14" fill="'+c+'"/><rect x="58" y="52" width="84" height="24" rx="8" fill="#13234a"/>'+
+    '<rect x="72" y="98" width="56" height="40" rx="6" fill="#fff"/><text x="100" y="127" text-anchor="middle" font-family="Bebas Neue,Impact,sans-serif" font-size="26" fill="'+c+'">J</text>'+
+    '<rect x="74" y="80" width="8" height="70" rx="4" fill="#fff" opacity=".25"/></svg>';
+}
+function fotoProd(p,n){ var u=p.fotoId&&FOTOS[p.fotoId]; return (u && /^data:image\//.test(u)) ? '<img src="'+u+'" alt="'+esc(p.nombre)+'" loading="lazy">' : svgProducto(n||0); }
+function posterLista(){ return (D.posters||[]).filter(function(p){ var u=p.fotoId&&FOTOS[p.fotoId]; return p.activo!==false && u && /^data:image\//.test(u); }); }
+function fotoPoster(p){ var u=p.fotoId&&FOTOS[p.fotoId]; return (u && /^data:image\//.test(u)) ? '<img src="'+u+'" alt="">' : '<span style="display:grid;place-items:center;height:100%;font-size:34px">🖼</span>'; }
 function fotoCorte(c){ var u=c.fotoId&&FOTOS[c.fotoId]; return (u && /^data:image\//.test(u)) ? '<img src="'+u+'" alt="'+esc(c.nombre)+'" loading="lazy">' : svgCorte(c.estilo||'lowfade'); }
 
 /* ============ VISTA PÚBLICA ============ */
@@ -388,9 +421,17 @@ function render(){
       '<div class="foot"><span class="now">'+L(c.precio)+'</span>'+(c.precioAntes>0?'<span class="ant">'+L(c.precioAntes)+'</span>':'')+'</div><div class="stripe"></div></div>';
   }).join('');
 
-  $('gal').innerHTML = D.cortes.length ? D.cortes.map(function(c,i){
-    return '<button class="cut" data-cut="'+i+'"><div class="ph">'+fotoCorte(c)+'<span class="num">#'+(i+1)+'</span></div><div class="info"><h3>'+esc(c.nombre)+'</h3>'+(c.desc?'<p>'+esc(c.desc)+'</p>':'')+'</div></button>';
-  }).join('') : '<div class="empty">Aún no hay estilos.</div>';
+  var pv=(D.productos||[]).filter(function(p){ return p.activo!==false; });
+  var pOn=C.productosOn!==false && pv.length>0;
+  $('productos').hidden=!pOn; $('navProd').hidden=!pOn;
+  $('prodList').innerHTML = pv.map(function(p,n){
+    return '<div class="prod"><div class="ph">'+fotoProd(p,n)+'<span class="precio">'+L(p.precio)+'</span></div><div class="info"><h3>'+esc(p.nombre)+'</h3>'+(p.desc?'<p>'+esc(p.desc)+'</p>':'')+'</div></div>';
+  }).join('');
+  var ps=posterLista();
+  $('cortes').hidden=!ps.length; $('navCortes').hidden=!ps.length;
+  $('gal').innerHTML = ps.map(function(p,n){
+    return '<button class="poster" data-cut="'+n+'"><img src="'+FOTOS[p.fotoId]+'" alt="Póster de estilos de corte '+(n+1)+'" loading="lazy">'+(p.titulo?'<span class="cap">'+esc(p.titulo)+'</span>':'')+'</button>';
+  }).join('');
 
   function box(ic,tt,v){ return v ? '<div class="cbox"><div class="ic">'+ic+'</div><div><b>'+tt+'</b><span>'+esc(v)+'</span></div></div>' : ''; }
   $('contact').innerHTML = (box('🕘','HORARIO',C.horario)+box('📍','DIRECCIÓN',C.direccion)+box('📞','TELÉFONO',C.telefono)) || '<div class="empty">Pronto publicaremos horario y dirección.</div>';
@@ -418,11 +459,12 @@ $('slider').addEventListener('click',function(e){ var b=e.target.closest('[data-
 
 /* Lightbox */
 var lbI=0;
-function openLb(i){ lbI=i; var c=D.cortes[i]; var wa=waLink('Hola, quiero el corte "'+c.nombre+'" en '+D.config.nombre);
-  $('lbBox').innerHTML='<div class="ph">'+fotoCorte(c)+'</div><div class="info"><h3>#'+(i+1)+' '+esc(c.nombre)+'</h3><p style="color:var(--muted)">'+esc(c.desc)+'</p>'+(wa?'<a class="cta" target="_blank" rel="noopener" href="'+esc(wa)+'">💬 Quiero este corte</a>':'')+'</div>';
+function openLb(i){ var ps=posterLista(); if(!ps.length) return; lbI=i; var p=ps[i]; var wa=waLink('Hola, quiero reservar un corte en '+D.config.nombre);
+  $('lbBox').className='box big';
+  $('lbBox').innerHTML='<img src="'+FOTOS[p.fotoId]+'" alt="Póster de estilos de corte">'+((p.titulo||wa)?'<div class="info" style="background:var(--navy)">'+(p.titulo?'<h3>'+esc(p.titulo)+'</h3>':'')+(wa?'<a class="cta" target="_blank" rel="noopener" href="'+esc(wa)+'">💬 Reservar por WhatsApp</a>':'')+'</div>':'');
   $('lb').hidden=false; }
 function closeLb(){ $('lb').hidden=true; }
-function lbMove(d){ openLb((lbI+d+D.cortes.length)%D.cortes.length); }
+function lbMove(d){ var n=posterLista().length; if(n) openLb((lbI+d+n)%n); }
 $('gal').addEventListener('click',function(e){ var b=e.target.closest('[data-cut]'); if(b) openLb(+b.dataset.cut); });
 $('lb').addEventListener('click',function(e){ if(e.target===this) closeLb(); });
 $('lbX').onclick=closeLb; $('lbP').onclick=function(){lbMove(-1);}; $('lbN').onclick=function(){lbMove(1);};
@@ -430,9 +472,9 @@ document.addEventListener('keydown',function(e){ if($('lb').hidden) return; if(e
 
 /* Modo TV: muestra una sección a la vez en pantalla completa y cambia sola */
 var tvT=null, tvI=0;
-var TV_TIEMPO={inicio:.8,ofertas:1.2,precios:1.5,combos:1.2,cortes:1.6,contacto:.8}; // multiplica los segundos elegidos en el panel
-function tvLista(){ return ['inicio','ofertas','precios','combos','cortes','contacto'].map($).filter(function(el){ return el && !el.hidden; }); }
-function tvLimpiar(){ tvLista().concat([$('ofertas'),$('combos')]).forEach(function(el){ if(!el) return; el.classList.remove('tv-on'); el.style.transform=''; el.style.marginTop=''; }); }
+var TV_TIEMPO={inicio:.8,ofertas:1.2,precios:1.5,combos:1.2,productos:1.3,cortes:1.6,contacto:.8}; // multiplica los segundos elegidos en el panel
+function tvLista(){ return ['inicio','ofertas','precios','combos','productos','cortes','contacto'].map($).filter(function(el){ return el && !el.hidden; }); }
+function tvLimpiar(){ tvLista().concat([$('ofertas'),$('combos'),$('productos')]).forEach(function(el){ if(!el) return; el.classList.remove('tv-on'); el.style.transform=''; el.style.marginTop=''; }); }
 function tvAjustar(el){
   // achica la sección si no cabe en la pantalla y la centra si sobra espacio
   el.style.transform=''; el.style.marginTop='';
@@ -475,7 +517,11 @@ $('btnTv').onclick=function(){
   if(on){ toast('📺 Modo pantalla activado'); try{ var p=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(function(){}); }catch(e){} }
   else { try{ if(document.fullscreenElement) document.exitFullscreen(); }catch(e){} toast('Modo pantalla desactivado'); }
 };
-try{ if(localStorage.getItem('bj_tv')==='1') setTV(true); }catch(e){}
+// ?tv=1 entra al modo pantalla y ?tv=0 sale (sirve si el botón queda tapado)
+var qtv=(location.search.match(/[?&]tv=([01])/)||[])[1];
+if(qtv==='0') setTV(false);
+else if(qtv==='1') setTV(true);
+else { try{ if(localStorage.getItem('bj_tv')==='1') setTV(true); }catch(e){} }
 
 /* ============ FIREBASE ============ */
 var configurado = typeof firebase!=='undefined' && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey.indexOf('PEGA')!==0;
@@ -527,9 +573,12 @@ var SCHEMA = {
   combos:{tab:'🎁 Combos', nombre:function(o){return o.nombre;}, ayuda:'El "Ahorras" se calcula solo con el precio normal.',
     campos:[['nombre','Nombre del combo','text'],['precio','Precio combo (L.)','number'],['precioAntes','Precio normal (L.)','number'],['incluye','Incluye (uno por línea)','area']],
     nuevo:function(){return {nombre:'Nuevo combo',incluye:'',precio:0,precioAntes:0};}},
-  cortes:{tab:'✂️ Cortes', nombre:function(o){return o.nombre;}, ayuda:'Sube fotos reales de tus cortes. Sin foto se muestra la ilustración.',
-    campos:[['nombre','Nombre del corte','text'],['desc','Descripción','text'],['estilo','Ilustración (si no hay foto)','select'],['fotoId','Foto','image']],
-    nuevo:function(){return {nombre:'Nuevo corte',desc:'',estilo:'lowfade',fotoId:''};}}
+  productos:{tab:'🧴 Productos', nombre:function(o){return o.nombre;}, ayuda:'Productos a la venta con foto y precio. Desmarca "Visible" para ocultar uno. Para ocultar toda la sección ve a Negocio → Pantalla del TV.',
+    campos:[['nombre','Producto','text'],['precio','Precio (L.)','number'],['desc','Descripción','text'],['activo','Visible','check'],['fotoId','Foto','image']],
+    nuevo:function(){return {nombre:'Nuevo producto',desc:'',precio:0,fotoId:'',activo:true};}},
+  posters:{tab:'✂️ Posters de cortes', nombre:function(o){return o.titulo||'Póster sin título';}, ayuda:'Sube imágenes tipo póster con varios estilos de corte. Se muestran completas, sin recortar. Si no hay ningún póster, la sección no aparece.',
+    campos:[['fotoId','Imagen del póster','image'],['titulo','Título (opcional, ej. "Fades")','text'],['activo','Visible','check']],
+    nuevo:function(){return {titulo:'',fotoId:'',activo:true};}}
 };
 var tab='servicios', confirmDel=-1, guardando=false;
 function openAdmin(){ $('adminModal').hidden=false; drawTabs(); drawAdmin(); updStatus(); }
@@ -546,9 +595,9 @@ function fieldHTML(sec,i,f,val){
   if(type==='area') return '<label class="wide">'+lbl+'<textarea '+a+'>'+esc(val)+'</textarea></label>';
   if(type==='select'){ var op=f[3]||ESTILOS; return '<label>'+lbl+'<select '+a+'>'+Object.keys(op).map(function(v){return '<option value="'+v+'"'+(String(v)===String(val)?' selected':'')+'>'+op[v]+'</option>';}).join('')+'</select></label>'; }
   if(type==='image'){ var it=D[sec][i], tiene=it.fotoId&&FOTOS[it.fotoId];
-    return '<div class="imgedit"><div class="th">'+fotoCorte(it)+'</div><div style="display:flex;flex-direction:column;gap:8px">'+
-      '<label class="btn sm">📷 '+(tiene?'Cambiar foto':'Subir foto')+'<input type="file" accept="image/*" hidden data-foto="'+i+'"></label>'+
-      (tiene?'<button class="btn ghost sm" data-quitar="'+i+'">Quitar foto</button>':'')+'</div></div>'; }
+    return '<div class="imgedit"><div class="th'+(sec==='posters'?' full':'')+'">'+(sec==='productos'?fotoProd(it,i):sec==='posters'?fotoPoster(it):fotoCorte(it))+'</div><div style="display:flex;flex-direction:column;gap:8px">'+
+      '<label class="btn sm">📷 '+(tiene?'Cambiar foto':'Subir foto')+'<input type="file" accept="image/*" hidden data-foto="'+i+'" data-fsec="'+sec+'"></label>'+
+      (tiene?'<button class="btn ghost sm" data-quitar="'+i+'" data-fsec="'+sec+'">Quitar foto</button>':'')+'</div></div>'; }
   return '<label>'+lbl+'<input type="'+type+'" '+(type==='number'?'min="0" step="any" inputmode="decimal" ':'')+a+' value="'+esc(val)+'"></label>';
 }
 function drawAdmin(){
@@ -564,6 +613,7 @@ function drawAdmin(){
       '<p class="note">Con el WhatsApp aparece el botón verde para reservar y el botón "Quiero este corte" en cada estilo.</p></div>'+
       '<div class="item"><div class="ih"><b>📺 Pantalla del TV</b></div><div class="fields">'+[
         ['tvSeg','Velocidad de las pantallas','select',{'6':'Muy rápida (6 seg)','8':'Rápida (8 seg)','10':'Normal (10 seg)','14':'Lenta (14 seg)','20':'Muy lenta (20 seg)'}],
+        ['productosOn','Mostrar la sección de productos','check'],
         ['tvReloj','Mostrar hora y fecha en la esquina','check'],
         ['tickerOn','Mostrar texto corriendo abajo','check'],
         ['tickerVel','Velocidad del texto','select',{'lenta':'Lenta','normal':'Normal','rapida':'Rápida'}],
@@ -600,7 +650,7 @@ function setF(el,final){
 }
 $('abody').addEventListener('input',function(e){ if(e.target.dataset.s && e.target.type!=='checkbox' && e.target.tagName!=='SELECT') setF(e.target,false); });
 $('abody').addEventListener('change',function(e){ var t=e.target;
-  if(t.dataset.foto!=null){ subirFoto(t,+t.dataset.foto); return; }
+  if(t.dataset.foto!=null){ subirFoto(t,+t.dataset.foto,t.dataset.fsec||'cortes'); return; }
   if(t.dataset.logo){ subirFoto(t,'logo'); return; }
   if(t.dataset.s) setF(t,true); });
 $('abody').addEventListener('click',function(e){ var t=e.target.closest('button'); if(!t) return;
@@ -609,11 +659,12 @@ $('abody').addEventListener('click',function(e){ var t=e.target.closest('button'
   else if(t.dataset.mov!=null){ var i=+t.dataset.mov, j=i+(+t.dataset.d), l=D[tab]; if(j<0||j>=l.length) return; var x=l[i]; l[i]=l[j]; l[j]=x; confirmDel=-1; markDirty(); render(); drawAdmin(); }
   else if(t.dataset.del!=null){ var d=+t.dataset.del; if(confirmDel!==d){ confirmDel=d; drawAdmin(); return; } D[tab].splice(d,1); confirmDel=-1; markDirty(); render(); drawAdmin(); toast('Eliminado. Recuerda guardar.'); }
   else if(t.dataset.quitarlogo){ D.config.logoId=''; markDirty(); render(); drawAdmin(); }
-  else if(t.dataset.quitar!=null){ D.cortes[+t.dataset.quitar].fotoId=''; markDirty(); render(); drawAdmin(); }
+  else if(t.dataset.quitar!=null){ D[t.dataset.fsec||'cortes'][+t.dataset.quitar].fotoId=''; markDirty(); render(); drawAdmin(); }
 });
 
 /* Las fotos se achican antes de subir para que carguen rápido en el TV */
-function subirFoto(inp,i){
+function subirFoto(inp,i,sec){
+  sec=sec||'cortes';
   var f=inp.files[0]; if(!f) return; toast('Procesando foto…');
   var r=new FileReader();
   r.onload=function(e){ var im=new Image(); im.onload=function(){
@@ -624,6 +675,18 @@ function subirFoto(inp,i){
         cv.width=cv.height=out; ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,out,out);
         ctx.drawImage(im,(out-w)/2,(out-h)/2,w,h);
         url=cv.toDataURL('image/png'); if(url.length>700000) url=cv.toDataURL('image/jpeg',.85);
+      } else if(sec==='posters'){
+        // el póster se guarda completo; se achica hasta que pese poco
+        var lim=1500;
+        do{
+          var k2=Math.min(1,lim/Math.max(im.width,im.height));
+          cv.width=Math.round(im.width*k2); cv.height=Math.round(im.height*k2);
+          ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,cv.width,cv.height);
+          ctx.drawImage(im,0,0,cv.width,cv.height);
+          q=.82; url=cv.toDataURL('image/jpeg',q);
+          while(url.length>700000 && q>.5){ q-=.08; url=cv.toDataURL('image/jpeg',q); }
+          lim-=250;
+        } while(url.length>700000 && lim>=600);
       } else {
         var lado=Math.min(im.width,im.height), sx=(im.width-lado)/2, sy=(im.height-lado)/2;
         var out2=Math.min(640,lado); cv.width=cv.height=out2;
@@ -631,7 +694,7 @@ function subirFoto(inp,i){
         url=cv.toDataURL('image/jpeg',q);
       }
       while(url.length>700000 && q>.35){ q-=.1; url=cv.toDataURL('image/jpeg',q); }
-      function asignar(id){ if(esLogo) D.config.logoId=id; else D.cortes[i].fotoId=id; }
+      function asignar(id){ if(esLogo) D.config.logoId=id; else D[sec][i].fotoId=id; }
       var id='f'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
       if(!configurado){ FOTOS[id]=url; asignar(id); markDirty(); render(); drawAdmin(); toast('Foto de prueba (no se guarda sin Firebase)'); return; }
       db.collection('fotos').doc(id).set({data:url}).then(function(){
@@ -652,7 +715,7 @@ function guardar(){
   db.collection('barberia').doc('datos').set(datos).then(function(){
     dirty=false; remotoPendiente=null; cachear(); toast('✓ Guardado. El TV ya lo muestra.');
     // borrar fotos que ya no usa ningún corte
-    var usadas={}; if(D.config.logoId) usadas[D.config.logoId]=1; D.cortes.forEach(function(c){ if(c.fotoId) usadas[c.fotoId]=1; });
+    var usadas={}; if(D.config.logoId) usadas[D.config.logoId]=1; D.cortes.concat(D.productos||[],D.posters||[]).forEach(function(c){ if(c.fotoId) usadas[c.fotoId]=1; });
     Object.keys(FOTOS).forEach(function(id){ if(!usadas[id]) db.collection('fotos').doc(id).delete().catch(function(){}); });
   }).catch(function(err){
     toast(err&&err.code==='permission-denied' ? 'Sin permiso para guardar. Revisa las reglas de Firebase.' : 'No se pudo guardar. Revisa tu internet e intenta otra vez.');
