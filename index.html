@@ -134,6 +134,9 @@ section{padding-block:40px}
 .poster img{width:100%;height:auto;display:block}
 .poster .cap{display:block;background:var(--navy);color:#fff;font-family:var(--display);font-size:24px;letter-spacing:1px;padding:8px 12px 6px;text-align:center}
 body.tvmode #cortes .hint{display:none}
+body.tvmode .poster.tv-hide{display:none}
+#posterPag{display:none}
+body.tvmode #posterPag:not([hidden]){display:inline-block}
 body.tvmode .posters{display:flex;justify-content:center;gap:28px}
 body.tvmode .poster{flex:1 1 0;max-width:46vw;cursor:default}
 .lb .box.big{max-width:min(980px,100%);background:#fff}
@@ -281,7 +284,7 @@ const FIREBASE_CONFIG = {
 <section id="precios"><div class="sec-title"><h2>Lista de precios</h2><div class="bar"></div></div><div class="menu" id="menu"></div></section>
 <section id="combos"><div class="sec-title"><h2>Combos</h2><span class="tag r">AHORRA MÁS</span><div class="bar"></div></div><div class="combos" id="combosList"></div></section>
 <section id="productos"><div class="sec-title"><h2>Productos</h2><span class="tag r">A LA VENTA</span><div class="bar"></div></div><div class="prods" id="prodList"></div></section>
-<section id="cortes"><div class="sec-title"><h2>Estilos de corte</h2><div class="bar"></div></div><p class="hint">Toca un póster para verlo en grande y muéstrale a tu barbero el estilo que quieres.</p><div class="posters" id="gal"></div></section>
+<section id="cortes"><div class="sec-title"><h2>Estilos de corte</h2><span class="tag" id="posterPag" hidden></span><div class="bar"></div></div><p class="hint">Toca un póster para verlo en grande y muéstrale a tu barbero el estilo que quieres.</p><div class="posters" id="gal"></div></section>
 <section id="contacto"><div class="sec-title"><h2>Visítanos</h2><div class="bar"></div></div><div class="contact" id="contact"></div></section>
 </main>
 <footer><div class="pole-band" style="margin-bottom:22px"></div><div class="wrap" id="foot"></div></footer>
@@ -310,7 +313,7 @@ const FIREBASE_CONFIG = {
 <script>
 (function(){
 /* ============ DATOS DE EJEMPLO (se usan hasta que guardes los tuyos) ============ */
-var EJEMPLO = {"config": {"nombre": "Barbería Joseph", "slogan": "Estilo, precisión y tradición en cada corte", "telefono": "", "whatsapp": "", "direccion": "", "horario": "Lunes a Sábado: 9:00 AM – 7:00 PM\nDomingo: 9:00 AM – 2:00 PM", "tvSeg": "10", "productosOn": true, "tvReloj": true, "tickerOn": false, "tickerVel": "normal", "tickerTexto": "Todo lo puedo en Cristo que me fortalece. — Filipenses 4:13\nJehová es mi pastor; nada me faltará. — Salmos 23:1\nMira que te mando que te esfuerces y seas valiente: no temas ni desmayes, porque Jehová tu Dios será contigo. — Josué 1:9"}, "servicios": [{"nombre": "Corte clásico", "desc": "Corte a tijera o máquina, terminado con navaja", "precio": 150, "duracion": "30 min", "destacado": false}, {"nombre": "Corte + Fade", "desc": "Degradado bajo, medio o alto, bien difuminado", "precio": 180, "duracion": "40 min", "destacado": true}, {"nombre": "Corte de niño", "desc": "Para los más pequeños (hasta 12 años)", "precio": 120, "duracion": "25 min", "destacado": false}, {"nombre": "Arreglo de barba", "desc": "Perfilado con navaja, toalla caliente y aceite", "precio": 100, "duracion": "20 min", "destacado": true}, {"nombre": "Perfilado de cejas", "desc": "Limpieza y definición con navaja", "precio": 50, "duracion": "10 min", "destacado": false}, {"nombre": "Diseño / rayitas", "desc": "Líneas o diseño libre a tu gusto", "precio": 50, "duracion": "10 min", "destacado": false}, {"nombre": "Lavado + peinado", "desc": "Shampoo, masaje y estilizado con cera o gel", "precio": 80, "duracion": "15 min", "destacado": false}, {"nombre": "Mascarilla negra", "desc": "Limpieza facial de puntos negros", "precio": 120, "duracion": "20 min", "destacado": false}], "combos": [{"nombre": "Combo Caballero", "incluye": "Corte + Fade\nArreglo de barba\nPerfilado de cejas", "precio": 260, "precioAntes": 330}, {"nombre": "Papá e Hijo", "incluye": "Corte de adulto\nCorte de niño\nPeinado para los dos", "precio": 240, "precioAntes": 270}, {"nombre": "Full VIP", "incluye": "Corte + Fade\nArreglo de barba\nMascarilla negra\nLavado + peinado", "precio": 420, "precioAntes": 480}], "ofertas": [{"titulo": "Martes de estudiantes", "desc": "Presenta tu carné y llévate tu corte a precio especial.", "precio": 120, "precioAntes": 150, "vence": "2026-12-31", "activo": true}, {"titulo": "Combo del mes", "desc": "Corte + barba + cejas. ¡Sal como nuevo!", "precio": 250, "precioAntes": 330, "vence": "2026-11-30", "activo": true}], "posters": [], "productos": [{"nombre": "Cera mate", "desc": "Fijación fuerte, acabado natural sin brillo", "precio": 180, "fotoId": "", "activo": true}, {"nombre": "Pomada con brillo", "desc": "Para peinados clásicos y pompadour", "precio": 180, "fotoId": "", "activo": true}, {"nombre": "Aceite para barba", "desc": "Suaviza, hidrata y da buen olor", "precio": 220, "fotoId": "", "activo": true}, {"nombre": "Shampoo para barba", "desc": "Limpieza diaria sin resecar", "precio": 200, "fotoId": "", "activo": true}], "cortes": [{"nombre": "Low Fade", "desc": "Degradado bajo, limpio y discreto", "estilo": "lowfade", "fotoId": ""}, {"nombre": "Mid Fade Texturizado", "desc": "Degradado medio con textura arriba", "estilo": "midfade", "fotoId": ""}, {"nombre": "Pompadour", "desc": "Volumen hacia atrás, estilo clásico", "estilo": "pompadour", "fotoId": ""}, {"nombre": "Crop Francés", "desc": "Flequillo corto texturizado", "estilo": "crop", "fotoId": ""}, {"nombre": "Burst Fade Mohicano", "desc": "Degradado en curva alrededor de la oreja", "estilo": "mohawk", "fotoId": ""}, {"nombre": "Undercut Slick Back", "desc": "Lados cortos, arriba peinado hacia atrás", "estilo": "undercut", "fotoId": ""}, {"nombre": "Side Part Clásico", "desc": "Raya al lado, elegante y formal", "estilo": "sidepart", "fotoId": ""}, {"nombre": "Buzz Cut", "desc": "Rapado parejo, cero mantenimiento", "estilo": "buzz", "fotoId": ""}, {"nombre": "Afro Taper", "desc": "Volumen arriba con taper en los lados", "estilo": "afro", "fotoId": ""}, {"nombre": "Mullet Moderno", "desc": "Corto adelante, largo atrás con fade", "estilo": "mullet", "fotoId": ""}, {"nombre": "Fade + Barba", "desc": "Degradado unido a barba perfilada", "estilo": "barba", "fotoId": ""}]};
+var EJEMPLO = {"config": {"nombre": "Barbería Joseph", "slogan": "Estilo, precisión y tradición en cada corte", "telefono": "", "whatsapp": "", "direccion": "", "horario": "Lunes a Sábado: 9:00 AM – 7:00 PM\nDomingo: 9:00 AM – 2:00 PM", "tvSeg": "10", "tvPosters": "2", "productosOn": true, "tvReloj": true, "tickerOn": false, "tickerVel": "normal", "tickerTexto": "Todo lo puedo en Cristo que me fortalece. — Filipenses 4:13\nJehová es mi pastor; nada me faltará. — Salmos 23:1\nMira que te mando que te esfuerces y seas valiente: no temas ni desmayes, porque Jehová tu Dios será contigo. — Josué 1:9"}, "servicios": [{"nombre": "Corte clásico", "desc": "Corte a tijera o máquina, terminado con navaja", "precio": 150, "duracion": "30 min", "destacado": false}, {"nombre": "Corte + Fade", "desc": "Degradado bajo, medio o alto, bien difuminado", "precio": 180, "duracion": "40 min", "destacado": true}, {"nombre": "Corte de niño", "desc": "Para los más pequeños (hasta 12 años)", "precio": 120, "duracion": "25 min", "destacado": false}, {"nombre": "Arreglo de barba", "desc": "Perfilado con navaja, toalla caliente y aceite", "precio": 100, "duracion": "20 min", "destacado": true}, {"nombre": "Perfilado de cejas", "desc": "Limpieza y definición con navaja", "precio": 50, "duracion": "10 min", "destacado": false}, {"nombre": "Diseño / rayitas", "desc": "Líneas o diseño libre a tu gusto", "precio": 50, "duracion": "10 min", "destacado": false}, {"nombre": "Lavado + peinado", "desc": "Shampoo, masaje y estilizado con cera o gel", "precio": 80, "duracion": "15 min", "destacado": false}, {"nombre": "Mascarilla negra", "desc": "Limpieza facial de puntos negros", "precio": 120, "duracion": "20 min", "destacado": false}], "combos": [{"nombre": "Combo Caballero", "incluye": "Corte + Fade\nArreglo de barba\nPerfilado de cejas", "precio": 260, "precioAntes": 330}, {"nombre": "Papá e Hijo", "incluye": "Corte de adulto\nCorte de niño\nPeinado para los dos", "precio": 240, "precioAntes": 270}, {"nombre": "Full VIP", "incluye": "Corte + Fade\nArreglo de barba\nMascarilla negra\nLavado + peinado", "precio": 420, "precioAntes": 480}], "ofertas": [{"titulo": "Martes de estudiantes", "desc": "Presenta tu carné y llévate tu corte a precio especial.", "precio": 120, "precioAntes": 150, "vence": "2026-12-31", "activo": true}, {"titulo": "Combo del mes", "desc": "Corte + barba + cejas. ¡Sal como nuevo!", "precio": 250, "precioAntes": 330, "vence": "2026-11-30", "activo": true}], "posters": [], "productos": [{"nombre": "Cera mate", "desc": "Fijación fuerte, acabado natural sin brillo", "precio": 180, "fotoId": "", "activo": true}, {"nombre": "Pomada con brillo", "desc": "Para peinados clásicos y pompadour", "precio": 180, "fotoId": "", "activo": true}, {"nombre": "Aceite para barba", "desc": "Suaviza, hidrata y da buen olor", "precio": 220, "fotoId": "", "activo": true}, {"nombre": "Shampoo para barba", "desc": "Limpieza diaria sin resecar", "precio": 200, "fotoId": "", "activo": true}], "cortes": [{"nombre": "Low Fade", "desc": "Degradado bajo, limpio y discreto", "estilo": "lowfade", "fotoId": ""}, {"nombre": "Mid Fade Texturizado", "desc": "Degradado medio con textura arriba", "estilo": "midfade", "fotoId": ""}, {"nombre": "Pompadour", "desc": "Volumen hacia atrás, estilo clásico", "estilo": "pompadour", "fotoId": ""}, {"nombre": "Crop Francés", "desc": "Flequillo corto texturizado", "estilo": "crop", "fotoId": ""}, {"nombre": "Burst Fade Mohicano", "desc": "Degradado en curva alrededor de la oreja", "estilo": "mohawk", "fotoId": ""}, {"nombre": "Undercut Slick Back", "desc": "Lados cortos, arriba peinado hacia atrás", "estilo": "undercut", "fotoId": ""}, {"nombre": "Side Part Clásico", "desc": "Raya al lado, elegante y formal", "estilo": "sidepart", "fotoId": ""}, {"nombre": "Buzz Cut", "desc": "Rapado parejo, cero mantenimiento", "estilo": "buzz", "fotoId": ""}, {"nombre": "Afro Taper", "desc": "Volumen arriba con taper en los lados", "estilo": "afro", "fotoId": ""}, {"nombre": "Mullet Moderno", "desc": "Corto adelante, largo atrás con fade", "estilo": "mullet", "fotoId": ""}, {"nombre": "Fade + Barba", "desc": "Degradado unido a barba perfilada", "estilo": "barba", "fotoId": ""}]};
 var D = JSON.parse(JSON.stringify(EJEMPLO));
 var FOTOS = {};            // id -> imagen (data URL) guardadas en Firebase
 var dirty = false, remotoPendiente = null, user = null;
@@ -448,7 +451,7 @@ function render(){
     tk.style.animation='none'; void tk.offsetWidth; tk.style.animation='';
     tk.style.animationDuration=Math.max(12,Math.round(largo*porLetra+12))+'s';
   }
-  if(document.body.classList.contains('tvmode') && typeof tvAjustar==='function'){ var cur=document.querySelector('.tv-on'); if(cur && !cur.hidden) tvAjustar(cur); else if(cur) tvMostrar(tvI); }
+  if(document.body.classList.contains('tvmode') && typeof tvAjustar==='function'){ var cur=document.querySelector('.tv-on'); if(cur && !cur.hidden){ tvPaginas(cur); tvAjustar(cur); } else if(cur) tvMostrar(tvI); }
 }
 function goSlide(n){
   var s=document.querySelectorAll('.slide'), d=document.querySelectorAll('.dots button'); if(!s.length) return;
@@ -482,18 +485,30 @@ function tvAjustar(el){
   if(alto>disp){ el.style.transform='scale('+Math.max(.4,disp/alto).toFixed(3)+')'; }
   else { el.style.marginTop=Math.floor((disp-alto)/2)+'px'; }
 }
-function tvMostrar(n){
+var tvPag=0;
+// en el TV los posters se muestran por grupos (1, 2 o 3 por pantalla) y van pasando, así nunca se ven pequeños
+function tvPaginas(el){
+  var ps=el.id==='cortes' ? [].slice.call(el.querySelectorAll('.poster')) : [];
+  var por=parseInt(D.config.tvPosters,10)||2, total=Math.max(1,Math.ceil(ps.length/por));
+  if(tvPag>=total) tvPag=0;
+  ps.forEach(function(p,k){ p.classList.toggle('tv-hide', Math.floor(k/por)!==tvPag); });
+  var tag=$('posterPag'); tag.hidden = total<2; tag.textContent=(tvPag+1)+' / '+total;
+  return total;
+}
+function tvMostrar(n,siguePag){
   clearTimeout(tvT);
+  if(!siguePag) tvPag=0;
   if(!document.body.classList.contains('tvmode')) return;
   var l=tvLista(); if(!l.length) return;
   tvI=((n%l.length)+l.length)%l.length;
   tvLimpiar(); var el=l[tvI]; el.classList.add('tv-on');
+  var paginas=tvPaginas(el);
   window.scrollTo(0,0);
   tvAjustar(el); setTimeout(function(){ tvAjustar(el); },900);
   var base=parseInt(D.config.tvSeg,10)||10, seg=Math.round(base*(TV_TIEMPO[el.id]||1)), bar=$('tvBar');
   bar.style.transition='none'; bar.style.width='0';
   setTimeout(function(){ bar.style.transition='width '+seg+'s linear'; bar.style.width='100%'; },50);
-  tvT=setTimeout(function(){ tvMostrar(tvI+1); },seg*1000);
+  tvT=setTimeout(function(){ if(tvPag+1<paginas){ tvPag++; tvMostrar(tvI,true); } else tvMostrar(tvI+1); },seg*1000);
 }
 function setTV(on){
   document.body.classList.toggle('tvmode',on);
@@ -613,6 +628,7 @@ function drawAdmin(){
       '<p class="note">Con el WhatsApp aparece el botón verde para reservar y el botón "Quiero este corte" en cada estilo.</p></div>'+
       '<div class="item"><div class="ih"><b>📺 Pantalla del TV</b></div><div class="fields">'+[
         ['tvSeg','Velocidad de las pantallas','select',{'6':'Muy rápida (6 seg)','8':'Rápida (8 seg)','10':'Normal (10 seg)','14':'Lenta (14 seg)','20':'Muy lenta (20 seg)'}],
+        ['tvPosters','Posters de cortes por pantalla en el TV','select',{'1':'1 por pantalla (más grande)','2':'2 por pantalla','3':'3 por pantalla'}],
         ['productosOn','Mostrar la sección de productos','check'],
         ['tvReloj','Mostrar hora y fecha en la esquina','check'],
         ['tickerOn','Mostrar texto corriendo abajo','check'],
